@@ -37,6 +37,7 @@ class PaymentSheet internal constructor(
      * @param activity  the Activity that is presenting the payment sheet.
      * @param callback  called with the result of the payment after the payment sheet is dismissed.
      */
+    @Deprecated(message = "Use PaymentSheet.simple() or PaymentSheet.advanced() instead.")
     constructor(
         activity: ComponentActivity,
         callback: PaymentSheetResultCallback
@@ -50,83 +51,12 @@ class PaymentSheet internal constructor(
      * @param fragment the Fragment that is presenting the payment sheet.
      * @param callback called with the result of the payment after the payment sheet is dismissed.
      */
+    @Deprecated(message = "Use PaymentSheet.simple() or PaymentSheet.advanced() instead.")
     constructor(
         fragment: Fragment,
         callback: PaymentSheetResultCallback
     ) : this(
         DefaultPaymentSheetLauncher(fragment, callback, null)
-    )
-
-    /**
-     * 🚧 Under construction 🚧
-     * Constructor to be used when launching payment sheet with the deferred intent flow.
-     *
-     * @param activity  the Activity that is presenting the payment sheet.
-     * @param callback  called with the result of the payment after the payment sheet is dismissed.
-     * @param confirmCallback  called with the payment method id which should be
-     * retrieved from your server
-     */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    constructor(
-        activity: ComponentActivity,
-        callback: PaymentSheetResultCallback,
-        confirmCallback: ConfirmCallbackForClientSideConfirmation
-    ) : this(
-        DefaultPaymentSheetLauncher(activity, callback, confirmCallback)
-    )
-
-    /**
-     * 🚧 Under construction 🚧
-     * Constructor to be used when launching payment sheet with the deferred intent flow.
-     *
-     * @param activity  the Activity that is presenting the payment sheet.
-     * @param callback  called with the result of the payment after the payment sheet is dismissed.
-     * @param serverSideConfirmCallback  called with the payment method id which should be
-     * retrieved from your server
-     */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    constructor(
-        activity: ComponentActivity,
-        callback: PaymentSheetResultCallback,
-        serverSideConfirmCallback: ConfirmCallbackForServerSideConfirmation
-    ) : this(
-        DefaultPaymentSheetLauncher(activity, callback, serverSideConfirmCallback)
-    )
-
-    /**
-     * 🚧 Under construction 🚧
-     * Constructor to be used when launching payment sheet with the deferred intent flow.
-     *
-     * @param fragment the Fragment that is presenting the payment sheet.
-     * @param callback  called with the result of the payment after the payment sheet is dismissed.
-     * @param confirmCallback  called with the payment method id which should be
-     * retrieved from your server
-     */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    constructor(
-        fragment: Fragment,
-        callback: PaymentSheetResultCallback,
-        confirmCallback: ConfirmCallbackForClientSideConfirmation
-    ) : this(
-        DefaultPaymentSheetLauncher(fragment, callback, confirmCallback)
-    )
-
-    /**
-     * 🚧 Under construction 🚧
-     * Constructor to be used when launching payment sheet with the deferred intent flow.
-     *
-     * @param fragment the Fragment that is presenting the payment sheet.
-     * @param callback  called with the result of the payment after the payment sheet is dismissed.
-     * @param serverSideConfirmCallback  called with the payment method id which should be
-     * retrieved from your server
-     */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    constructor(
-        fragment: Fragment,
-        callback: PaymentSheetResultCallback,
-        serverSideConfirmCallback: ConfirmCallbackForServerSideConfirmation
-    ) : this(
-        DefaultPaymentSheetLauncher(fragment, callback, serverSideConfirmCallback)
     )
 
     /**
@@ -137,6 +67,8 @@ class PaymentSheet internal constructor(
      * @param paymentIntentClientSecret the client secret for the [PaymentIntent].
      * @param configuration optional [PaymentSheet] settings.
      */
+    @Deprecated(message = "Use PaymentSheet.simple() to instantiate a SimplePaymentSheet instead." +
+        "Then call the presentWithPaymentIntent() method on it.")
     @JvmOverloads
     fun presentWithPaymentIntent(
         paymentIntentClientSecret: String,
@@ -156,6 +88,8 @@ class PaymentSheet internal constructor(
      * @param setupIntentClientSecret the client secret for the [SetupIntent].
      * @param configuration optional [PaymentSheet] settings.
      */
+    @Deprecated(message = "Use PaymentSheet.simple() to instantiate a SimplePaymentSheet instead." +
+        "Then call the presentWithSetupIntent() method on it.")
     @JvmOverloads
     fun presentWithSetupIntent(
         setupIntentClientSecret: String,
@@ -163,24 +97,6 @@ class PaymentSheet internal constructor(
     ) {
         paymentSheetLauncher.present(
             mode = InitializationMode.SetupIntent(setupIntentClientSecret),
-            configuration = configuration,
-        )
-    }
-
-    /**
-     * Present the payment sheet with an [IntentConfiguration].
-     *
-     * @param intentConfiguration The [IntentConfiguration] to use.
-     * @param configuration An optional [PaymentSheet] configuration.
-     */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    @JvmOverloads
-    fun presentWithIntentConfiguration(
-        intentConfiguration: IntentConfiguration,
-        configuration: Configuration? = null,
-    ) {
-        paymentSheetLauncher.present(
-            mode = InitializationMode.DeferredIntent(intentConfiguration),
             configuration = configuration,
         )
     }
@@ -1098,6 +1014,89 @@ class PaymentSheet internal constructor(
     }
 
     companion object {
+
+        fun simple(
+            activity: ComponentActivity,
+            callback: PaymentSheetResultCallback,
+        ): SimplePaymentSheet {
+            return SimplePaymentSheet(
+                paymentSheetLauncher = DefaultPaymentSheetLauncher(
+                    activity = activity,
+                    callback = callback,
+                    confirmCallback = null,
+                )
+            )
+        }
+
+        fun simple(
+            fragment: Fragment,
+            callback: PaymentSheetResultCallback,
+        ): SimplePaymentSheet {
+            return SimplePaymentSheet(
+                paymentSheetLauncher = DefaultPaymentSheetLauncher(
+                    fragment = fragment,
+                    callback = callback,
+                    confirmCallback = null,
+                )
+            )
+        }
+
+        fun advanced(
+            activity: ComponentActivity,
+            confirmCallback: ConfirmCallbackForClientSideConfirmation,
+            callback: PaymentSheetResultCallback,
+        ): AdvancedPaymentSheet {
+            return AdvancedPaymentSheet(
+                paymentSheetLauncher = DefaultPaymentSheetLauncher(
+                    activity = activity,
+                    callback = callback,
+                    confirmCallback = confirmCallback,
+                )
+            )
+        }
+
+        fun advanced(
+            fragment: Fragment,
+            confirmCallback: ConfirmCallbackForClientSideConfirmation,
+            callback: PaymentSheetResultCallback,
+        ): AdvancedPaymentSheet {
+            return AdvancedPaymentSheet(
+                paymentSheetLauncher = DefaultPaymentSheetLauncher(
+                    fragment = fragment,
+                    callback = callback,
+                    confirmCallback = confirmCallback,
+                )
+            )
+        }
+
+        fun advanced(
+            activity: ComponentActivity,
+            confirmCallback: ConfirmCallbackForServerSideConfirmation,
+            callback: PaymentSheetResultCallback,
+        ): AdvancedPaymentSheet {
+            return AdvancedPaymentSheet(
+                paymentSheetLauncher = DefaultPaymentSheetLauncher(
+                    activity = activity,
+                    callback = callback,
+                    confirmCallback = confirmCallback,
+                )
+            )
+        }
+
+        fun advanced(
+            fragment: Fragment,
+            confirmCallback: ConfirmCallbackForServerSideConfirmation,
+            callback: PaymentSheetResultCallback,
+        ): AdvancedPaymentSheet {
+            return AdvancedPaymentSheet(
+                paymentSheetLauncher = DefaultPaymentSheetLauncher(
+                    fragment = fragment,
+                    callback = callback,
+                    confirmCallback = confirmCallback,
+                )
+            )
+        }
+
         /**
          * Deletes all persisted authentication state associated with a customer.
          *

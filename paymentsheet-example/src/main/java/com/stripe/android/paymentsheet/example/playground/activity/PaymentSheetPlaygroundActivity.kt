@@ -27,8 +27,10 @@ import com.stripe.android.ConfirmCallbackForClientSideConfirmation
 import com.stripe.android.PaymentConfiguration
 import com.stripe.android.core.model.CountryCode
 import com.stripe.android.core.model.CountryUtils
+import com.stripe.android.paymentsheet.AdvancedPaymentSheet
 import com.stripe.android.paymentsheet.PaymentSheet
 import com.stripe.android.paymentsheet.PaymentSheetResult
+import com.stripe.android.paymentsheet.SimplePaymentSheet
 import com.stripe.android.paymentsheet.addresselement.AddressDetails
 import com.stripe.android.paymentsheet.addresselement.AddressLauncher
 import com.stripe.android.paymentsheet.addresselement.AddressLauncherResult
@@ -140,7 +142,9 @@ class PaymentSheetPlaygroundActivity : AppCompatActivity() {
         Settings(this)
     }
 
-    private lateinit var paymentSheet: PaymentSheet
+    private lateinit var simplePaymentSheet: SimplePaymentSheet
+    private lateinit var advancedPaymentSheet: AdvancedPaymentSheet
+
     private lateinit var flowController: PaymentSheet.FlowController
     private lateinit var addressLauncher: AddressLauncher
     private var shippingAddress: AddressDetails? = null
@@ -179,10 +183,15 @@ class PaymentSheetPlaygroundActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(viewBinding.root)
 
-        paymentSheet = PaymentSheet(
+        simplePaymentSheet = PaymentSheet.simple(
             activity = this,
             callback = ::onPaymentSheetResult,
-            confirmCallback = ::onCreatePaymentIntent,
+        )
+
+        advancedPaymentSheet = PaymentSheet.advanced(
+            activity = this,
+            confirmCallback = this::onCreatePaymentIntent,
+            callback = ::onPaymentSheetResult,
         )
 
         flowController = PaymentSheet.FlowController.create(
@@ -471,12 +480,12 @@ class PaymentSheetPlaygroundActivity : AppCompatActivity() {
             viewBinding.customLabelTextField.clearFocus()
 
             if (viewModel.checkoutMode.value == CheckoutMode.Setup) {
-                paymentSheet.presentWithSetupIntent(
+                simplePaymentSheet.presentWithSetupIntent(
                     setupIntentClientSecret = clientSecret,
                     configuration = makeConfiguration()
                 )
             } else {
-                paymentSheet.presentWithPaymentIntent(
+                simplePaymentSheet.presentWithPaymentIntent(
                     paymentIntentClientSecret = clientSecret,
                     configuration = makeConfiguration()
                 )
@@ -506,7 +515,7 @@ class PaymentSheetPlaygroundActivity : AppCompatActivity() {
 
             viewModel.intentConfigurationMode.value = mode
 
-            paymentSheet.presentWithIntentConfiguration(
+            advancedPaymentSheet.presentWithIntentConfiguration(
                 intentConfiguration = PaymentSheet.IntentConfiguration(
                     mode = mode,
                     paymentMethodTypes = viewModel.paymentMethodTypes.value,

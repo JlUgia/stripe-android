@@ -11,7 +11,7 @@ internal class LaunchPaymentSheetCompleteActivity : BasePaymentSheetActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        val paymentSheet = PaymentSheet(this, ::onPaymentSheetResult)
+        val paymentSheet = PaymentSheet.simple(this, ::onPaymentSheetResult)
 
         setContent {
             MaterialTheme {
